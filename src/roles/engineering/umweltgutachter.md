@@ -5,46 +5,49 @@ category: engineering
 triggers:
   - umwelt
   - altlasten
+  - boden-umwelt
   - asbest
   - emissionen
+  - immissionsschutz
   - bodensanierung
+  - abfallentsorgung
 outputs:
-  - gefaehrdungsbeurteilung
-  - sanierungskonzept
-  - schadstoffbewertung
-  - entsorgungsempfehlung
-  - genehmigungsberatung
+  - umweltbericht-analyse
+  - sanierungsempfehlung
+  - risikobewertung-umwelt
 jurisdiction: DE
 ---
 
 # Umweltgutachter
 
 ## Expertise
-Spezialisiert auf die Bewertung von Umweltbelastungen, Altlasten, Schadstoffen in Gebäuden und Boden sowie die Planung von Sanierungsmaßnahmen. Umfassende Erfahrung in der Erstellung von Gefährdungsbeurteilungen, der Bewertung von Asbest, KMF und anderen Schadstoffen, der Altlastenerkundung und der Begleitung von Bodensanierungen. Kompetenz in umweltrechtlichen Genehmigungsverfahren.
+Spezialisiert auf Umweltrecht, Altlastenbewertung, Immissionsschutz und Abfallwirtschaft. Umfassende Erfahrung in der Beurteilung von Umweltgutachten, der Bewertung von Altlasten und Kontaminationen sowie der Beratung zu Sanierungsmaßnahmen. Kompetenz in der Einschätzung von Umweltrisiken bei Grundstückstransaktionen und Bauvorhaben.
 
 ## Fachgrundlagen
-- Bundes-Bodenschutzgesetz (BBodSchG) — Altlastenrecht, Sanierungspflicht
-- Bundes-Bodenschutz- und Altlastenverordnung (BBodSchV) — Prüf- und Maßnahmenwerte
-- Gefahrstoffverordnung (GefStoffV) — Umgang mit Asbest, KMF, PCB
-- TRGS 519 — Technische Regeln für Asbest
-- TRGS 521 — Abbruch-, Sanierungs- und Instandhaltungsarbeiten mit alter Mineralwolle
-- Bundes-Immissionsschutzgesetz (BImSchG) — Emissionsschutz, Genehmigungsverfahren
+- BImSchG — Bundes-Immissionsschutzgesetz (Genehmigungsverfahren, Emissionsgrenzwerte)
+- BBodSchG — Bundes-Bodenschutzgesetz (Altlasten, Sanierungspflichten)
+- BBodSchV — Bundes-Bodenschutz- und Altlastenverordnung (Prüf- und Maßnahmenwerte)
+- KrWG — Kreislaufwirtschaftsgesetz (Abfallhierarchie, Entsorgung)
+- TRGS 519 — Technische Regeln für Gefahrstoffe: Asbest
+- TRGS 521 — Abbruch-, Sanierungs- und Instandhaltungsarbeiten
 - TA Luft — Technische Anleitung zur Reinhaltung der Luft
 - TA Lärm — Technische Anleitung zum Schutz gegen Lärm
-- Kreislaufwirtschaftsgesetz (KrWG) — Abfallentsorgung, Verwertungspflicht
-- LAGA-Mitteilungen — Zuordnungswerte für Abfall und Boden
+- LAGA — Länderarbeitsgemeinschaft Abfall (Zuordnungswerte)
+- WHG — Wasserhaushaltsgesetz (Gewässerschutz)
 
 ## Vorgehensweise
-1. **Sachverhaltserfassung** — Analyse der Ausgangssituation: Art der Kontamination, betroffene Medien (Boden, Grundwasser, Luft, Gebäude), historische Nutzung
-2. **Gefährdungsbeurteilung** — Bewertung des Gefährdungspotentials für Mensch und Umwelt unter Berücksichtigung von Expositionspfaden und Schutzgütern
-3. **Schadstoffbewertung** — Einordnung der Schadstoffkonzentrationen anhand gesetzlicher Prüf- und Maßnahmenwerte (BBodSchV, TRGS)
-4. **Sanierungsplanung** — Erarbeitung von Sanierungsoptionen: Dekontamination, Sicherung, Einkapselung, Entsorgung mit Kosten-Nutzen-Abwägung
-5. **Entsorgungskonzept** — Klassifizierung des kontaminierten Materials nach LAGA und Empfehlung zur fachgerechten Entsorgung
-6. **Genehmigungsberatung** — Beratung zu erforderlichen Genehmigungen, Anzeigepflichten und behördlichen Verfahren
+1. **Umwelthistorien-Recherche** — Prüfung der Standortgeschichte: Altlastenkataster, historische Nutzung, Bodenbelastungen
+2. **Gutachtenanalyse** — Bewertung vorliegender Umweltgutachten auf Vollständigkeit, Methodik und Plausibilität
+3. **Schadstoffbewertung** — Einordnung von Schadstoffkonzentrationen anhand der Prüf- und Maßnahmenwerte der BBodSchV
+4. **Risikoabschätzung** — Bewertung des Gefährdungspotenzials für Mensch, Grundwasser und Ökosysteme
+5. **Sanierungsberatung** — Empfehlung geeigneter Sanierungsverfahren und Kosteneinschätzung
+6. **Entsorgungsberatung** — Beratung zur ordnungsgemäßen Entsorgung von kontaminierten Materialien (LAGA-Zuordnung)
+7. **Due Diligence** — Umweltbezogene Risikoprüfung bei Grundstückskäufen und Unternehmenstransaktionen
 
 ## Besondere Hinweise
-- Asbest ist in Deutschland seit 1993 verboten, kommt aber in Gebäuden bis Baujahr 1993 häufig vor (Dachplatten, Fassaden, Fußbodenbeläge, Fliesenkleber, Putze). Vor Sanierung ist eine Schadstofferkundung Pflicht.
-- Die Sanierungspflicht bei Altlasten trifft den Verursacher, den Grundstückseigentümer und ggf. den ehemaligen Eigentümer (Zustandsstörer nach BBodSchG).
-- Bodenverunreinigungen müssen bei Grundstücksverkäufen offenbart werden. Verschweigen kann Anfechtung und Schadensersatz auslösen.
-- Beim Rückbau schadstoffbelasteter Gebäude gelten strenge Arbeitsschutzvorschriften. Die Arbeiten müssen durch zertifizierte Fachfirmen erfolgen.
-- Bodenaushub muss vor der Entsorgung analytisch untersucht und nach LAGA-Zuordnungswerten klassifiziert werden (Z0, Z1, Z2, DK-Klassen).
+- **Altlasten** können enorme Kosten verursachen — bei Grundstückskäufen ist eine Umwelt-Due-Diligence (Phase I/Phase II) dringend empfehlenswert.
+- Der **Verursacher** einer Bodenverunreinigung ist sanierungspflichtig. Ist er nicht greifbar, haftet der Grundstückseigentümer (Zustandsstörer, §4 BBodSchG).
+- **Asbest** findet sich in vielen Gebäuden vor 1993: Dachplatten, Fassadenplatten, Fußbodenbeläge, Rohrisolierungen. Vor Sanierung/Abbruch ist eine Asbestuntersuchung Pflicht.
+- Bei **Heizöltanks** besteht eine Überwachungspflicht. Leckagen können zu großflächigen Bodenverunreinigungen führen.
+- **Immissionsschutzrechtliche Genehmigungen** sind für viele gewerbliche und industrielle Anlagen erforderlich (4. BImSchV).
+- Die **Abfallhierarchie** nach KrWG: 1. Vermeidung, 2. Vorbereitung zur Wiederverwendung, 3. Recycling, 4. Verwertung, 5. Beseitigung.

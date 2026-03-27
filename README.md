@@ -1,26 +1,27 @@
 # openai-cli
 
-**KI-gestuetzter Fachexperten-Assistent fuer Dokumentenanalyse und professionelle Beratung.**
+**AI-powered document analysis with 65+ expert consultation roles.**
 
-65+ vordefinierte Expertenrollen — von Fachanwaelten ueber Aerzte bis zu Steuerberatern. Analysiert Dokumente jeder Art, aktiviert automatisch die passenden Fachexperten und erstellt professionelle Ausgaben wie Klageschriften, Steuererklaerungen oder Gutachten.
+Predefined specialist roles — from attorneys and doctors to tax advisors and architects. Reads documents of any format, automatically activates the right expert, and produces professional outputs like lawsuits, tax returns, or expert opinions.
 
-**Kostenlos und Open Source.** Verbinde dich einfach mit deinem OpenAI-Konto.
+**Free and open source.** Just connect with your OpenAI account.
 
 ---
 
 ## Features
 
-- **65+ Fachexperten-Rollen** — Recht, Steuern, Medizin, Immobilien, Versicherung, Unternehmen, Wissenschaft, Technik, Verbraucher
-- **Automatisches Experten-Routing** — Erkennt anhand deiner Dokumente und Fragen, welcher Experte gebraucht wird
-- **Alle Dokumentformate** — PDF, DOCX, XLSX, CSV, PowerPoint, Pages, Numbers, Keynote, HTML, E-Mails, Bilder (OCR), Archive
-- **Professionelle Ausgaben** — Klageschriften, Widersprueche, Steuererklaerungen, Gutachten, Schreiben an Behoerden
-- **Multi-Experten-Panel** — Mehrere Experten gleichzeitig fuer komplexe Faelle (z.B. Scheidung: Familienrecht + Steuer + Immobilien)
-- **Konfigurierbar** — Globale und projektspezifische OPENAI.md Dateien
-- **Pipe-faehig** — Nicht-interaktiver Modus fuer Scripting
+- **65+ Expert Roles** — Legal, Tax & Finance, Medical, Real Estate, Insurance, Business, Academia, Engineering, Consumer
+- **Automatic Expert Routing** — Detects which specialist is needed based on your documents and questions
+- **All Document Formats** — PDF, DOCX, XLSX, CSV, PowerPoint, Pages, Numbers, Keynote, HTML, Emails, Images (OCR), Archives
+- **Professional Outputs** — Lawsuits, objections, tax returns, expert opinions, official letters
+- **Multi-Expert Panel** — Multiple experts simultaneously for complex cases (e.g., divorce: family law + tax + real estate)
+- **Configurable** — Global and project-specific OPENAI.md configuration files
+- **Pipe-friendly** — Non-interactive mode for scripting
+- **RAG Pipeline** — Semantic search across document collections via embeddings
 
 ## Installation
 
-### Homebrew (empfohlen)
+### Homebrew (recommended, macOS)
 
 ```bash
 brew tap marcelrgberger/tap
@@ -33,7 +34,7 @@ brew install openai-cli
 npm install -g openai-cli
 ```
 
-### Von Source
+### From Source
 
 ```bash
 git clone https://github.com/marcelrgberger/openai-cli.git
@@ -43,181 +44,205 @@ npm run build
 npm link
 ```
 
-## Einrichtung
+## Setup
 
-Du brauchst einen OpenAI API-Key. Hol dir einen unter [platform.openai.com](https://platform.openai.com/api-keys).
+You need an OpenAI API key. Get one at [platform.openai.com](https://platform.openai.com/api-keys).
 
 ```bash
-# Option 1: Umgebungsvariable
+# Option 1: Environment variable
 export OPENAI_API_KEY="sk-..."
 
-# Option 2: Beim Start angeben
+# Option 2: Pass at startup
 openai-cli --api-key "sk-..."
 
-# Option 3: In Settings speichern
-# Wird automatisch gespeichert nach erstem --api-key Aufruf
+# Option 3: Save to settings
+# Automatically saved after first --api-key call
 ```
 
-## Verwendung
+## Usage
 
-### Interaktiver Modus
+### Interactive Mode
 
 ```bash
 openai-cli
 ```
 
 ```
-  openai-cli — Fachexperten-Dokumenten-Agent
-  65+ Experten-Rollen | Dokumentenanalyse | Professionelle Ausgaben
+  openai-cli — Expert Document Agent
+  65+ Expert Roles | Document Analysis | Professional Outputs
 
-openai-cli > Pruefe meinen Arbeitsvertrag auf problematische Klauseln
-[Fachanwalt Arbeitsrecht aktiviert]
+openai-cli > Check my employment contract for problematic clauses
+[Employment Law Attorney activated]
 ...
 
-openai-cli > Schreib mir eine Kuendigungsschutzklage
-[Klageschrift wird erstellt]
+openai-cli > Draft a termination protection lawsuit
+[Generating professional document]
 ...
 ```
 
-### Nicht-interaktiver Modus
+### Non-Interactive Mode
 
 ```bash
-# Dokument analysieren
-openai-cli --print "Fasse dieses Dokument zusammen" < vertrag.pdf
+# Analyze a single document
+openai-cli --print "Summarize this document" < contract.pdf
 
-# Verzeichnis analysieren
-openai-cli --dir ./steuerbelege/ --print "Erstelle eine Steuererklaerung aus diesen Belegen"
+# Analyze a directory
+openai-cli --dir ./tax-receipts/ --print "Prepare a tax return from these receipts"
 
-# Bestimmte Rolle verwenden
-openai-cli --role steuerberater --print "Pruefe diesen Steuerbescheid"
+# Use a specific role
+openai-cli --role steuerberater --print "Check this tax assessment"
 ```
 
-### Befehle
+### Commands
 
-| Befehl | Funktion |
+| Command | Function |
 |---|---|
-| `/help` | Hilfe anzeigen |
-| `/roles` | Alle 65+ Experten-Rollen auflisten |
-| `/role <id>` | Bestimmte Rolle aktivieren (z.B. `/role steuerberater`) |
-| `/role` | Automatisches Routing aktivieren |
-| `/model <name>` | Modell wechseln (gpt-4o, o3, o4-mini) |
-| `/clear` | Konversation loeschen |
-| `/exit` | Beenden |
+| `/help` | Show help |
+| `/roles` | List all 65+ expert roles |
+| `/role <id>` | Activate a specific role (e.g., `/role steuerberater`) |
+| `/role` | Enable automatic routing |
+| `/model <name>` | Switch model (gpt-4o, gpt-4o-mini, o3, o4-mini) |
+| `/clear` | Clear conversation |
+| `/exit` | Exit |
 
-## Experten-Rollen
+## Expert Roles
 
-### Recht (15 Rollen)
-Fachanwalt fuer: Arbeitsrecht, Familienrecht, Mietrecht, Verkehrsrecht, Erbrecht, Strafrecht, Medizinrecht, Sozialrecht, Verwaltungsrecht, IT-Recht, Handelsrecht, Insolvenzrecht, Baurecht, Versicherungsrecht, Steuerrecht
+### Legal (15 Roles)
+Employment Law, Family Law, Tenant Law, Traffic Law, Inheritance Law, Criminal Law, Medical Law, Social Law, Administrative Law, IT Law, Corporate Law, Insolvency Law, Construction Law, Insurance Law, Tax Law
 
-### Steuern & Finanzen (8 Rollen)
-Steuerberater, Finanzberater, Wirtschaftspruefer, Buchhalter, Lohnabrechner, Controller, Foerdermittelberater, Zollberater
+### Tax & Finance (8 Roles)
+Tax Advisor, Financial Advisor, Auditor, Accountant, Payroll Specialist, Controller, Grants Advisor, Customs Advisor
 
-### Medizin & Gesundheit (10 Rollen)
-Allgemeinmedizin, Kardiologie, Orthopaedie, Neurologie, Dermatologie, Zahnmedizin, Psychologie, Pharmazie, Ernaehrung, Medizincontrolling
+### Medical & Health (10 Roles)
+General Medicine, Cardiology, Orthopedics, Neurology, Dermatology, Dentistry, Psychology, Pharmacy, Nutrition, Medical Coding
 
-### Immobilien & Bau (6 Rollen)
-Architekt, Immobilienbewerter, Makler, Bauingenieur, Energieberater, Hausverwalter
+### Real Estate & Construction (6 Roles)
+Architect, Property Valuator, Real Estate Agent, Structural Engineer, Energy Consultant, Property Manager
 
-### Versicherung & Vorsorge (4 Rollen)
-Versicherungsberater, Rentenberater, BU-Berater, Krankenversicherungsberater
+### Insurance & Retirement (4 Roles)
+Insurance Advisor, Pension Advisor, Disability Insurance Advisor, Health Insurance Advisor
 
-### Unternehmen & Gruendung (6 Rollen)
-Unternehmensberater, Gruendungsberater, HR/Personalberater, Datenschutzbeauftragter, Compliance Officer, Patentberater
+### Business & Startups (6 Roles)
+Management Consultant, Startup Advisor, HR Advisor, Data Protection Officer, Compliance Officer, Patent Advisor
 
-### Bildung & Wissenschaft (4 Rollen)
-Wissenschaftlicher Lektor, Statistiker, Fachuebersetzer, Paedagoge
+### Academia & Science (4 Roles)
+Scientific Editor, Statistician, Specialist Translator, Educator
 
-### Technik & Ingenieurwesen (4 Rollen)
-KFZ-Sachverstaendiger, Elektroingenieur, Umweltgutachter, IT-Sachverstaendiger
+### Engineering (4 Roles)
+Vehicle Expert, Electrical Engineer, Environmental Expert, IT Expert
 
-### Alltag & Verbraucher (5 Rollen)
-Verbraucherschutz, Schuldnerberater, Reiserecht, Behoerdenlotse, Mediator
+### Consumer (5 Roles)
+Consumer Protection, Debt Counselor, Travel Rights, Government Services Guide, Mediator
 
-## Unterstuetzte Dokumentformate
+## Supported Document Formats
 
-| Kategorie | Formate |
+| Category | Formats |
 |---|---|
 | Text | .txt, .md, .rst, .tex, .rtf |
 | Office | .pdf, .docx, .doc, .xlsx, .xls, .csv, .tsv, .pptx, .ppt |
 | Apple | .pages, .numbers, .key |
 | Web | .html, .htm, .xml, .json, .yaml, .yml |
-| E-Mail | .eml, .msg |
-| Bilder (OCR) | .png, .jpg, .jpeg, .tiff, .bmp, .gif, .webp |
+| Email | .eml, .msg |
+| Images (OCR) | .png, .jpg, .jpeg, .tiff, .bmp, .gif, .webp |
 | E-Books | .epub |
-| Archive | .zip, .tar.gz, .tar |
+| Archives | .zip, .tar.gz, .tar |
 
-## Konfiguration
+## Configuration
 
 ### Global: `~/.openai-cli/OPENAI.md`
 
 ```markdown
 # OPENAI.md
 
-## Modell
-- Standard: gpt-4o
+## Model
+- Default: gpt-4o
+- For complex reasoning: o3
 
-## Sprache
-- Deutsch
+## Language
+- German
 
-## Praeferenzen
-- Rechtsgrundlagen immer zitieren
-- Fristen hervorheben
+## Preferences
+- Always cite legal references
+- Highlight deadlines
 ```
 
-### Projekt: `./OPENAI.md`
+### Project: `./OPENAI.md`
 
 ```markdown
 # OPENAI.md
 
-## Kontext
-Dokumente fuer meine Steuererklaerung 2025.
+## Context
+Documents for my 2025 tax return.
 
-## Anweisungen
-- Fokus: Einkommensteuer, Werbungskosten
-- Arbeitnehmer, Steuerklasse 1
+## Instructions
+- Focus: Income tax, work-related expenses
+- Employee, tax class 1
 ```
 
-## Eigene Experten-Rollen
+## Custom Expert Roles
 
-Lege eigene Rollen als `.md`-Dateien in `~/.openai-cli/roles/` ab:
+Place custom roles as `.md` files in `~/.openai-cli/roles/`:
 
 ```markdown
 ---
-id: meine-rolle
-name: Mein Fachexperte
+id: my-expert
+name: My Custom Expert
 category: custom
 triggers:
   - keyword1
   - keyword2
 outputs:
-  - ausgabe1
+  - output1
 ---
 
-# Mein Fachexperte
+# My Custom Expert
 
 ## Expertise
-Beschreibung...
+Description...
 ```
 
-## Plattform
+## Architecture
 
-**openai-cli ist aktuell fuer macOS optimiert.** Insbesondere Apple-Dokumentformate (.pages, .numbers, .key) nutzen macOS-eigene Tools (`textutil`).
+```mermaid
+graph TB
+    A[User Input + Documents] --> B[Triage Agent]
+    B --> C{Expert Routing}
+    C --> D[Single Expert]
+    C --> E[Multi-Expert Panel]
+    D --> F[OpenAI API]
+    E --> F
+    F --> G[Professional Output]
 
-**Beitraege fuer Windows und Linux sind herzlich willkommen!** Falls du openai-cli auf andere Plattformen portieren moechtest, freuen wir uns ueber Pull Requests.
+    H[Document Parser] --> I[Chunker]
+    I --> J[Embeddings]
+    J --> K[Vector Store]
+    K --> F
+```
 
-## Wichtiger Hinweis
+## Platform
 
-> Diese Software liefert KI-gestuetzte Analysen und Entwuerfe. Sie ersetzt **keine** professionelle Beratung durch zugelassene Anwaelte, Aerzte, Steuerberater oder andere Fachleute. Alle Angaben ohne Gewaehr. Fuer rechtsverbindliche Schritte immer einen zugelassenen Berater konsultieren.
+**openai-cli is currently optimized for macOS.** Apple document formats (.pages, .numbers, .key) use macOS-native tools (`textutil`).
 
-## Lizenz
+**Contributions for Windows and Linux are very welcome!** If you'd like to port openai-cli to other platforms, we appreciate pull requests.
+
+## Documentation
+
+- [User Guide](docs/USER_GUIDE.md) — Detailed usage instructions with examples
+- [Developer Guide](docs/DEVELOPER_GUIDE.md) — Architecture, contributing, adding roles/parsers/tools
+
+## Disclaimer
+
+> This software provides AI-assisted analysis and drafts. It does **not** replace professional consultation by licensed lawyers, doctors, tax advisors, or other specialists. All information is provided without warranty. For legally binding actions, always consult a licensed professional.
+
+## License
 
 MIT License — Marcel R. G. Berger
 
-## Beitragen
+## Contributing
 
-Beitraege sind willkommen! Besonders gesucht:
-- Neue Experten-Rollen
-- Windows/Linux-Kompatibilitaet
-- Zusaetzliche Dokumentformate
-- Verbesserungen an bestehenden Rollen
+Contributions are welcome! Especially needed:
+- New expert roles (especially for non-German jurisdictions)
+- Windows/Linux compatibility
+- Additional document formats
+- Improvements to existing roles
 - Tests
