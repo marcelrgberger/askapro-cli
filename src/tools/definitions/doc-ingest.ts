@@ -15,17 +15,17 @@ export function setIngestStore(store: IndexStore): void {
 
 export const docIngestTool: ToolDefinition = {
   name: 'doc_ingest',
-  description: 'Liest alle Dokumente in einem Verzeichnis ein, zerteilt sie in Chunks, erstellt Embeddings und speichert sie im Index fuer spaetere semantische Suche.',
+  description: 'Reads all documents in a directory, splits them into chunks, creates embeddings, and stores them in the index for later semantic search.',
   parameters: {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'Pfad zum Verzeichnis mit Dokumenten',
+        description: 'Path to the directory containing documents',
       },
       recursive: {
         type: 'boolean',
-        description: 'Unterverzeichnisse einbeziehen (Standard: true)',
+        description: 'Include subdirectories (default: true)',
       },
     },
     required: ['path'],
@@ -35,7 +35,7 @@ export const docIngestTool: ToolDefinition = {
     const recursive = params.recursive !== false;
 
     if (!existsSync(dirPath)) {
-      return `Fehler: Verzeichnis nicht gefunden: ${dirPath}`;
+      return `Error: Directory not found: ${dirPath}`;
     }
 
     if (!indexStoreRef) {
@@ -45,10 +45,10 @@ export const docIngestTool: ToolDefinition = {
     const files = collectFiles(dirPath, recursive).filter(isSupportedFile);
 
     if (files.length === 0) {
-      return `Keine unterstuetzten Dokumente in ${dirPath} gefunden.`;
+      return `No supported documents found in ${dirPath}.`;
     }
 
-    const results: string[] = [`Indexiere ${files.length} Dokumente aus ${dirPath}...`];
+    const results: string[] = [`Indexing ${files.length} documents from ${dirPath}...`];
     let totalChunks = 0;
     let errors = 0;
 
@@ -82,12 +82,12 @@ export const docIngestTool: ToolDefinition = {
         results.push(`  OK: ${basename(file)} (${chunks.length} Chunks)`);
       } catch (err) {
         errors++;
-        results.push(`  FEHLER: ${basename(file)} — ${err instanceof Error ? err.message : String(err)}`);
+        results.push(`  ERROR: ${basename(file)} — ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 
-    results.push(`\nFertig: ${files.length - errors} Dokumente, ${totalChunks} Chunks indexiert.`);
-    if (errors > 0) results.push(`${errors} Fehler aufgetreten.`);
+    results.push(`\nDone: ${files.length - errors} documents, ${totalChunks} chunks indexed.`);
+    if (errors > 0) results.push(`${errors} errors occurred.`);
 
     return results.join('\n');
   },

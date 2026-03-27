@@ -11,17 +11,17 @@ export function setSearchStores(vectorStore: any, indexStore: any): void {
 
 export const docSearchTool: ToolDefinition = {
   name: 'doc_search',
-  description: 'Durchsucht die indexierten Dokumente semantisch nach relevanten Textstellen. Nutze dieses Tool, bevor du Fragen zu Dokumenten beantwortest.',
+  description: 'Searches the indexed documents semantically for relevant text passages. Use this tool before answering questions about documents.',
   parameters: {
     type: 'object',
     properties: {
       query: {
         type: 'string',
-        description: 'Suchanfrage — was suchst du in den Dokumenten?',
+        description: 'Search query — what are you looking for in the documents?',
       },
       top_k: {
         type: 'number',
-        description: 'Anzahl der Ergebnisse (Standard: 5)',
+        description: 'Number of results (default: 5)',
       },
     },
     required: ['query'],
@@ -35,27 +35,27 @@ export const docSearchTool: ToolDefinition = {
       if (indexStoreRef) {
         const results = indexStoreRef.searchText(query, topK);
         if (results.length === 0) {
-          return 'Keine Treffer gefunden. Sind Dokumente indexiert? Nutze /docs ingest <pfad>';
+          return 'No matches found. Are documents indexed? Use /docs ingest <path>';
         }
         return results.map((r: any, i: number) =>
           `[${i + 1}] ${r.doc_name} (Chunk ${r.chunk_index}):\n${r.text.slice(0, 500)}`
         ).join('\n\n---\n\n');
       }
-      return 'Keine Dokumente indexiert. Nutze /docs ingest <pfad> um Dokumente einzulesen.';
+      return 'No documents indexed. Use /docs ingest <path> to ingest documents.';
     }
 
     try {
       const results = await vectorStoreRef.hybridSearch(query, topK);
 
       if (results.length === 0) {
-        return 'Keine relevanten Textstellen gefunden.';
+        return 'No relevant text passages found.';
       }
 
       return results.map((r: any, i: number) =>
-        `[${i + 1}] ${r.chunk.doc_name} (Relevanz: ${(r.score * 100).toFixed(0)}%):\n${r.chunk.text.slice(0, 800)}`
+        `[${i + 1}] ${r.chunk.doc_name} (Relevance: ${(r.score * 100).toFixed(0)}%):\n${r.chunk.text.slice(0, 800)}`
       ).join('\n\n---\n\n');
     } catch (err) {
-      return `Suchfehler: ${err instanceof Error ? err.message : String(err)}`;
+      return `Search error: ${err instanceof Error ? err.message : String(err)}`;
     }
   },
 };

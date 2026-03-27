@@ -1,10 +1,17 @@
 import { loadAllRoles, type RoleDefinition } from './loader.js';
 
+// Categories that require specific jurisdictions
+const JURISDICTION_CATEGORIES: Record<string, string> = {
+  'legal-de': 'DE',
+};
+
 export class RoleRegistry {
   private roles = new Map<string, RoleDefinition>();
   private triggerIndex = new Map<string, string[]>(); // trigger -> roleIds
+  private jurisdiction: string;
 
-  constructor() {
+  constructor(jurisdiction: string = 'DE') {
+    this.jurisdiction = jurisdiction;
     this.reload();
   }
 
@@ -14,6 +21,12 @@ export class RoleRegistry {
 
     const roles = loadAllRoles();
     for (const role of roles) {
+      // Filter jurisdiction-specific roles
+      const requiredJurisdiction = JURISDICTION_CATEGORIES[role.category];
+      if (requiredJurisdiction && requiredJurisdiction !== this.jurisdiction) {
+        continue; // Skip roles not matching user's jurisdiction
+      }
+
       this.roles.set(role.id, role);
 
       for (const trigger of role.triggers) {

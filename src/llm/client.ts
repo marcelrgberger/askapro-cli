@@ -12,8 +12,8 @@ export function getClient(): OpenAI {
 
   if (!apiKey) {
     console.error(
-      '\nKein OpenAI API-Key gefunden.\n\n' +
-      'Setze deinen Key auf eine dieser Arten:\n' +
+      '\nNo OpenAI API key found.\n\n' +
+      'Set your key using one of these methods:\n' +
       '  1. export OPENAI_API_KEY="sk-..."\n' +
       '  2. askapro --api-key "sk-..."\n' +
       '  3. In ~/.askapro/settings.json: { "apiKey": "sk-..." }\n'

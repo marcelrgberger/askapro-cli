@@ -5,17 +5,17 @@ import type { ToolDefinition } from '../registry.js';
 
 export const docReadTool: ToolDefinition = {
   name: 'doc_read',
-  description: 'Liest ein Dokument beliebigen Formats (PDF, DOCX, XLSX, CSV, HTML, Bilder, E-Mails, Apple-Dokumente, etc.) und gibt den extrahierten Text zurueck.',
+  description: 'Reads a document of any format (PDF, DOCX, XLSX, CSV, HTML, images, emails, Apple documents, etc.) and returns the extracted text.',
   parameters: {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'Pfad zur Datei (relativ oder absolut)',
+        description: 'Path to the file (relative or absolute)',
       },
       max_chars: {
         type: 'number',
-        description: 'Maximale Anzahl Zeichen in der Ausgabe (Standard: 50000)',
+        description: 'Maximum number of characters in the output (default: 50000)',
       },
     },
     required: ['path'],
@@ -24,7 +24,7 @@ export const docReadTool: ToolDefinition = {
     const filePath = resolve(params.path as string);
 
     if (!existsSync(filePath)) {
-      return `Fehler: Datei nicht gefunden: ${filePath}`;
+      return `Error: File not found: ${filePath}`;
     }
 
     try {
@@ -39,18 +39,18 @@ export const docReadTool: ToolDefinition = {
       }
 
       const header = [
-        `Datei: ${doc.filename}`,
+        `File: ${doc.filename}`,
         `Format: ${doc.format}`,
-        `Groesse: ${(doc.size / 1024).toFixed(1)} KB`,
+        `Size: ${(doc.size / 1024).toFixed(1)} KB`,
       ];
 
-      if (doc.metadata.pages) header.push(`Seiten: ${doc.metadata.pages}`);
-      if (doc.metadata.sheets) header.push(`Blaetter: ${(doc.metadata.sheets as string[]).join(', ')}`);
-      if (truncated) header.push(`(Text gekuerzt auf ${maxChars} Zeichen)`);
+      if (doc.metadata.pages) header.push(`Pages: ${doc.metadata.pages}`);
+      if (doc.metadata.sheets) header.push(`Sheets: ${(doc.metadata.sheets as string[]).join(', ')}`);
+      if (truncated) header.push(`(Text truncated to ${maxChars} characters)`);
 
       return header.join(' | ') + '\n---\n' + text;
     } catch (err) {
-      return `Fehler beim Lesen: ${err instanceof Error ? err.message : String(err)}`;
+      return `Error reading file: ${err instanceof Error ? err.message : String(err)}`;
     }
   },
 };

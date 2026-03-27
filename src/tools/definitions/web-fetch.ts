@@ -2,17 +2,17 @@ import type { ToolDefinition } from '../registry.js';
 
 export const webFetchTool: ToolDefinition = {
   name: 'web_fetch',
-  description: 'Ruft den Inhalt einer URL ab und gibt den Text zurueck. Nuetzlich fuer Gesetzestexte, Urteile, Fachinformationen.',
+  description: 'Fetches the content of a URL and returns the text. Useful for legal texts, rulings, technical information.',
   parameters: {
     type: 'object',
     properties: {
       url: {
         type: 'string',
-        description: 'Die URL zum Abrufen',
+        description: 'The URL to fetch',
       },
       max_chars: {
         type: 'number',
-        description: 'Maximale Zeichenzahl (Standard: 20000)',
+        description: 'Maximum character count (default: 20000)',
       },
     },
     required: ['url'],
@@ -31,7 +31,7 @@ export const webFetchTool: ToolDefinition = {
       });
 
       if (!response.ok) {
-        return `Fehler: HTTP ${response.status} ${response.statusText}`;
+        return `Error: HTTP ${response.status} ${response.statusText}`;
       }
 
       const contentType = response.headers.get('content-type') || '';
@@ -53,12 +53,12 @@ export const webFetchTool: ToolDefinition = {
       }
 
       if (text.length > maxChars) {
-        text = text.slice(0, maxChars) + '\n\n(gekuerzt)';
+        text = text.slice(0, maxChars) + '\n\n(truncated)';
       }
 
       return `URL: ${url}\n---\n${text}`;
     } catch (err) {
-      return `Fehler beim Abrufen von ${url}: ${err instanceof Error ? err.message : String(err)}`;
+      return `Error fetching ${url}: ${err instanceof Error ? err.message : String(err)}`;
     }
   },
 };

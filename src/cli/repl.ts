@@ -4,7 +4,7 @@ import { agentLoop } from '../agent/loop.js';
 import { buildSystemPrompt } from '../agent/system-prompt.js';
 import { createToolRegistry } from '../tools/registry.js';
 import { handleCommand, getRoleCompletions } from './commands.js';
-import { renderWelcome, renderPrompt, renderError, renderToolCall, renderInfo } from './renderer.js';
+import { renderWelcome, renderPrompt, renderError, renderToolCall, renderInfo, renderMarkdown } from './renderer.js';
 import { RoleRegistry } from '../roles/registry.js';
 import type { CliArgs } from './args.js';
 import { loadSettings, saveSettings } from '../config/settings.js';
@@ -22,9 +22,58 @@ function askQuestion(rl: readline.Interface, question: string): Promise<string> 
 async function runOnboarding(rl: readline.Interface): Promise<void> {
   console.log();
   console.log(chalk.bold.green('  Welcome to askapro!'));
-  console.log(chalk.dim('  AI-powered document analysis with 85+ expert consultation roles'));
+  console.log(chalk.dim('  Ask a Pro — AI-powered document analysis with 85+ expert consultation roles'));
   console.log();
-  console.log(chalk.bold('  Let\'s set you up. You\'ll need an OpenAI API key.'));
+
+  // Detect system language
+  const sysLang = (process.env.LANG || process.env.LC_ALL || process.env.LANGUAGE || 'en').slice(0, 2).toLowerCase();
+
+  // Step 1: Country selection
+  console.log(chalk.bold(sysLang === 'de' ? '  In welchem Land befinden Sie sich?' : '  Where are you located?'));
+  console.log();
+  console.log('  1. Germany');
+  console.log('  2. Austria');
+  console.log('  3. Switzerland');
+  console.log('  4. Other country');
+  console.log();
+
+  const countryAnswer = await askQuestion(rl, chalk.cyan('  Your country [1]: '));
+  let jurisdiction = 'DE';
+  const language = sysLang === 'de' || sysLang === 'fr' || sysLang === 'it' ? sysLang : 'en';
+
+  switch (countryAnswer) {
+    case '2':
+      jurisdiction = 'AT';
+      break;
+    case '3':
+      jurisdiction = 'CH';
+      break;
+    case '4': {
+      const custom = await askQuestion(rl, chalk.cyan('  Country code (e.g., US, UK, FR): '));
+      if (custom) jurisdiction = custom.toUpperCase();
+      break;
+    }
+    default:
+      jurisdiction = 'DE';
+  }
+
+  const countryLabels: Record<string, string> = { DE: 'Germany', AT: 'Austria', CH: 'Switzerland' };
+  const countryName = countryLabels[jurisdiction] || jurisdiction;
+  console.log(chalk.green(`\n  Country set: ${countryName}`));
+
+  if (jurisdiction === 'DE') {
+    console.log(chalk.dim('  You\'ll get access to all 85+ roles including 20 Germany-specific legal specialists.'));
+  } else if (jurisdiction === 'AT' || jurisdiction === 'CH') {
+    console.log(chalk.dim('  You\'ll get access to 65+ general roles. Legal advice will use ' + countryName + ' law.'));
+  } else {
+    console.log(chalk.dim('  You\'ll get access to 65+ general roles. Experts will research applicable laws for your country.'));
+  }
+
+  saveSettings({ jurisdiction, language });
+  console.log();
+
+  // Step 2: API key
+  console.log(chalk.bold('  You\'ll need an OpenAI API key to continue.'));
   console.log(chalk.dim('  Get one at: https://platform.openai.com/api-keys'));
   console.log();
 
@@ -171,7 +220,8 @@ export async function startRepl(args: CliArgs): Promise<void> {
   }
 
   const conversation = new Conversation(model);
-  const roleRegistry = new RoleRegistry();
+  const jurisdiction = settings.jurisdiction || 'DE';
+  const roleRegistry = new RoleRegistry(jurisdiction);
   let activeRole: string | null = args.role || null;
 
   // Validate --role flag
@@ -187,7 +237,8 @@ export async function startRepl(args: CliArgs): Promise<void> {
     return role?.content;
   };
 
-  conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole)));
+  const userLanguage = settings.language || 'de';
+  conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole), jurisdiction, userLanguage));
 
   // askQuestion will be bound to the REPL readline after it's created
   let replRl: readline.Interface | null = null;
@@ -207,7 +258,10 @@ export async function startRepl(args: CliArgs): Promise<void> {
     },
     setRole: (r: string | null) => {
       activeRole = r;
-      conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole)));
+      // Clear conversation on role switch — new role = fresh context
+      conversation.clear();
+      const userLanguage = settings.language || 'en';
+      conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole), jurisdiction, userLanguage));
     },
   };
 
@@ -215,10 +269,10 @@ export async function startRepl(args: CliArgs): Promise<void> {
   if (args.print) {
     conversation.addUserMessage(args.print);
     try {
-      await agentLoop(conversation, toolRegistry, {
-        onText: (text) => process.stdout.write(text),
-      });
-      console.log();
+      const result = await agentLoop(conversation, toolRegistry, {});
+      if (result) {
+        process.stdout.write(renderMarkdown(result));
+      }
     } catch (err) {
       renderError(err instanceof Error ? err.message : String(err));
       process.exit(1);
@@ -279,11 +333,13 @@ export async function startRepl(args: CliArgs): Promise<void> {
 
     try {
       console.log();
-      await agentLoop(conversation, toolRegistry, {
-        onText: (text) => process.stdout.write(text),
+      const result = await agentLoop(conversation, toolRegistry, {
         onToolStart: (name) => renderToolCall(name),
       });
-      console.log('\n');
+      if (result) {
+        process.stdout.write(renderMarkdown(result));
+      }
+      console.log();
     } catch (err) {
       renderError(err instanceof Error ? err.message : String(err));
     }

@@ -1,3 +1,15 @@
+declare module 'marked-terminal' {
+  import type { RendererObject } from 'marked';
+  interface TerminalRendererOptions {
+    tab?: number;
+    [key: string]: unknown;
+  }
+  class TerminalRenderer implements RendererObject {
+    constructor(options?: TerminalRendererOptions);
+  }
+  export default TerminalRenderer;
+}
+
 declare module 'pdf-parse' {
   interface PdfData {
     numpages: number;

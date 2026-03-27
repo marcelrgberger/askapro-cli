@@ -11,17 +11,17 @@ export interface TriageResult {
   reasoning: string;
 }
 
-const TRIAGE_PROMPT = `Du bist ein Triage-Agent. Analysiere die Frage und Dokumente des Nutzers und bestimme, welcher Fachexperte am besten geeignet ist.
+const TRIAGE_PROMPT = `You are a triage agent. Analyze the user's question and documents to determine the best expert.
 
-Antworte NUR im folgenden JSON-Format:
+Respond ONLY in the following JSON format:
 {
-  "primary": "rolle-id",
-  "secondary": ["rolle-id-2"],
+  "primary": "role-id",
+  "secondary": ["role-id-2"],
   "confidence": 0.9,
-  "reasoning": "Kurze Begruendung"
+  "reasoning": "Brief explanation"
 }
 
-Verfuegbare Rollen:
+Available roles:
 `;
 
 export async function triageQuery(
@@ -62,7 +62,7 @@ export async function triageQuery(
         },
         {
           role: 'user',
-          content: `Frage: ${query}\n\nDokument-Kontext: ${documentContext.slice(0, 2000)}`,
+          content: `Question: ${query}\n\nDocument context: ${documentContext.slice(0, 2000)}`,
         },
       ],
       temperature: 0.1,
@@ -88,7 +88,7 @@ export async function triageQuery(
         primaryRole: roleRegistry.get(keywordMatches[0].roleId) || null,
         secondaryRoles: [],
         confidence: 0.5,
-        reasoning: 'Keyword-basierte Zuordnung (LLM-Triage fehlgeschlagen)',
+        reasoning: 'Keyword-based routing (LLM triage failed)',
       };
     }
 
@@ -96,7 +96,7 @@ export async function triageQuery(
       primaryRole: null,
       secondaryRoles: [],
       confidence: 0,
-      reasoning: 'Kein passender Experte gefunden',
+      reasoning: 'No matching expert found',
     };
   }
 }

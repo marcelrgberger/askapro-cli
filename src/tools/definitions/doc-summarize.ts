@@ -6,17 +6,17 @@ import type { ToolDefinition } from '../registry.js';
 
 export const docSummarizeTool: ToolDefinition = {
   name: 'doc_summarize',
-  description: 'Liest ein Verzeichnis mit Dokumenten und gibt eine Uebersicht aller gefundenen Dateien mit Kurzinformationen zurueck.',
+  description: 'Reads a directory of documents and returns an overview of all found files with brief information.',
   parameters: {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'Pfad zum Verzeichnis',
+        description: 'Path to the directory',
       },
       recursive: {
         type: 'boolean',
-        description: 'Unterverzeichnisse einbeziehen (Standard: true)',
+        description: 'Include subdirectories (default: true)',
       },
     },
     required: ['path'],
@@ -26,19 +26,19 @@ export const docSummarizeTool: ToolDefinition = {
     const recursive = params.recursive !== false;
 
     if (!existsSync(dirPath)) {
-      return `Fehler: Verzeichnis nicht gefunden: ${dirPath}`;
+      return `Error: Directory not found: ${dirPath}`;
     }
 
     const files = collectFiles(dirPath, recursive);
     const supported = files.filter(isSupportedFile);
 
     if (supported.length === 0) {
-      return `Keine unterstuetzten Dokumente in ${dirPath} gefunden.`;
+      return `No supported documents found in ${dirPath}.`;
     }
 
     const lines: string[] = [
-      `Verzeichnis: ${dirPath}`,
-      `Dokumente gefunden: ${supported.length}`,
+      `Directory: ${dirPath}`,
+      `Documents found: ${supported.length}`,
       '---',
     ];
 
@@ -49,7 +49,7 @@ export const docSummarizeTool: ToolDefinition = {
     }
 
     if (supported.length > 100) {
-      lines.push(`... und ${supported.length - 100} weitere Dateien`);
+      lines.push(`... and ${supported.length - 100} more files`);
     }
 
     return lines.join('\n');

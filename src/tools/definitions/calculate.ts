@@ -12,7 +12,7 @@ function safeEval(expr: string): number {
     let num = '';
     if (peek() === '-') { num += next(); }
     while (/[0-9.]/.test(peek())) { num += next(); }
-    if (!num || num === '-') throw new Error('Erwartete Zahl');
+    if (!num || num === '-') throw new Error('Expected number');
     return parseFloat(num);
   }
 
@@ -20,7 +20,7 @@ function safeEval(expr: string): number {
     if (peek() === '(') {
       next(); // consume (
       const val = parseExpr();
-      if (next() !== ')') throw new Error('Erwartete )');
+      if (next() !== ')') throw new Error('Expected )');
       return val;
     }
     return parseNumber();
@@ -47,23 +47,23 @@ function safeEval(expr: string): number {
   }
 
   const result = parseExpr();
-  if (pos < tokens.length) throw new Error('Unerwartetes Zeichen: ' + tokens[pos]);
+  if (pos < tokens.length) throw new Error('Unexpected character: ' + tokens[pos]);
   return result;
 }
 
 export const calculateTool: ToolDefinition = {
   name: 'calculate',
-  description: 'Fuehrt mathematische Berechnungen aus. Nuetzlich fuer Unterhaltsberechnungen, Steuerberechnungen, Zinsberechnungen, etc.',
+  description: 'Performs mathematical calculations. Useful for maintenance calculations, tax calculations, interest calculations, etc.',
   parameters: {
     type: 'object',
     properties: {
       expression: {
         type: 'string',
-        description: 'Mathematischer Ausdruck (Grundrechenarten: +, -, *, /, Klammern)',
+        description: 'Mathematical expression (basic arithmetic: +, -, *, /, parentheses)',
       },
       description: {
         type: 'string',
-        description: 'Beschreibung der Berechnung',
+        description: 'Description of the calculation',
       },
     },
     required: ['expression'],
@@ -76,7 +76,7 @@ export const calculateTool: ToolDefinition = {
       const result = safeEval(expression);
 
       if (!isFinite(result)) {
-        return `Fehler: Ergebnis ist keine gueltige Zahl.`;
+        return `Error: Result is not a valid number.`;
       }
 
       const formatted = Number.isInteger(result) ? result.toString() : result.toFixed(2);
@@ -85,7 +85,7 @@ export const calculateTool: ToolDefinition = {
         ? `${desc}: ${expression} = ${formatted}`
         : `${expression} = ${formatted}`;
     } catch (err) {
-      return `Berechnungsfehler: ${err instanceof Error ? err.message : String(err)}`;
+      return `Calculation error: ${err instanceof Error ? err.message : String(err)}`;
     }
   },
 };
