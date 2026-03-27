@@ -8,6 +8,10 @@ import { renderWelcome, renderPrompt, renderError, renderToolCall, renderInfo, r
 import { RoleRegistry } from '../roles/registry.js';
 import type { CliArgs } from './args.js';
 import { loadSettings, saveSettings } from '../config/settings.js';
+import { existsSync, statSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { isSupportedFile } from '../documents/parser.js';
+import type { ToolRegistry } from '../tools/registry.js';
 import { ensureGlobalDirs } from '../config/paths.js';
 import { DEFAULT_MODEL, fetchModels, getModel } from '../llm/models.js';
 import { loadConfig } from '../config/loader.js';
@@ -166,6 +170,74 @@ function getProjectModel(): string | null {
     return match[1];
   }
   return null;
+}
+
+/**
+ * Detect file paths from drag-and-drop or pasted paths.
+ * Cleans up quotes, escapes, and resolves the path.
+ * If files are found, reads them and prepends content to the user message.
+ */
+async function handleDroppedFiles(input: string, toolRegistry: ToolRegistry | null): Promise<string> {
+  // Extract potential file paths from the input
+  // Terminal drag-drop produces paths like: /path/to/file.pdf or '/path/to/file.pdf' or /path/to/file\ name.pdf
+  const lines = input.split('\n');
+  const filePaths: string[] = [];
+  const textParts: string[] = [];
+
+  for (const line of lines) {
+    // Clean up the path: remove quotes, handle escaped spaces
+    let cleaned = line.trim()
+      .replace(/^['"]|['"]$/g, '')  // Remove surrounding quotes
+      .replace(/\\ /g, ' ');        // Unescape spaces
+
+    const resolved = resolve(cleaned);
+
+    if (existsSync(resolved)) {
+      try {
+        const stat = statSync(resolved);
+        if (stat.isFile() && isSupportedFile(resolved)) {
+          filePaths.push(resolved);
+          continue;
+        } else if (stat.isDirectory()) {
+          filePaths.push(resolved);
+          continue;
+        }
+      } catch {
+        // Not a valid path, treat as text
+      }
+    }
+    textParts.push(line);
+  }
+
+  if (filePaths.length === 0) return input;
+
+  // Read dropped files
+  const fileContents: string[] = [];
+  for (const fp of filePaths) {
+    if (!toolRegistry) continue;
+    try {
+      const stat = statSync(fp);
+      if (stat.isDirectory()) {
+        const summary = await toolRegistry.execute('doc_summarize', { path: fp, recursive: true });
+        fileContents.push(summary);
+        console.log(chalk.dim(`  [Loaded directory: ${fp}]`));
+      } else {
+        const content = await toolRegistry.execute('doc_read', { path: fp, max_chars: 50000 });
+        fileContents.push(content);
+        console.log(chalk.dim(`  [Loaded: ${fp}]`));
+      }
+    } catch (err) {
+      console.log(chalk.yellow(`  Could not read: ${fp}`));
+    }
+  }
+
+  const userText = textParts.filter(Boolean).join('\n').trim();
+  const fileContext = fileContents.join('\n\n---\n\n');
+
+  if (userText) {
+    return `${userText}\n\n[Attached documents]\n${fileContext}`;
+  }
+  return `Please analyze the following document(s):\n\n${fileContext}`;
 }
 
 export async function startRepl(args: CliArgs): Promise<void> {
@@ -331,7 +403,10 @@ export async function startRepl(args: CliArgs): Promise<void> {
       return;
     }
 
-    conversation.addUserMessage(input);
+    // Detect dropped file paths (drag & drop into terminal)
+    const processedInput = await handleDroppedFiles(input, toolRegistry);
+
+    conversation.addUserMessage(processedInput);
 
     try {
       console.log();
