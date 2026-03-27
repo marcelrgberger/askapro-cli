@@ -9,6 +9,7 @@ export interface CommandContext {
   askQuestion: (prompt: string) => Promise<string>;
   setModel: (model: string) => void;
   setRole: (role: string | null) => void;
+  getLastResponse: () => string;
 }
 
 export async function handleCommand(input: string, ctx: CommandContext): Promise<boolean> {
@@ -90,6 +91,22 @@ export async function handleCommand(input: string, ctx: CommandContext): Promise
       ctx.conversation.clear();
       console.log(chalk.cyan('  Conversation cleared'));
       return true;
+
+    case 'copy': {
+      const lastResp = ctx.getLastResponse();
+      if (!lastResp) {
+        console.log(chalk.yellow('  No response to copy.'));
+      } else {
+        try {
+          const { execFileSync } = await import('node:child_process');
+          execFileSync('pbcopy', [], { input: lastResp });
+          console.log(chalk.green('  Copied to clipboard.'));
+        } catch {
+          console.log(chalk.yellow('  Could not copy to clipboard.'));
+        }
+      }
+      return true;
+    }
 
     case 'exit':
     case 'quit':
@@ -190,6 +207,7 @@ function showHelp(): void {
   console.log('  /role               Enable automatic routing');
   console.log('  /model <name>       Switch model');
   console.log('  /model              Show available models (live from API)');
+  console.log('  /copy               Copy last response to clipboard');
   console.log('  /clear              Clear conversation');
   console.log('  /exit               Exit');
   console.log();

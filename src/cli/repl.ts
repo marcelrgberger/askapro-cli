@@ -242,6 +242,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
 
   // askQuestion will be bound to the REPL readline after it's created
   let replRl: readline.Interface | null = null;
+  let lastResponse = '';
 
   const commandCtx = {
     conversation,
@@ -263,6 +264,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
       const userLanguage = settings.language || 'en';
       conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole), jurisdiction, userLanguage));
     },
+    getLastResponse: () => lastResponse,
   };
 
   // Non-interactive mode
@@ -307,26 +309,12 @@ export async function startRepl(args: CliArgs): Promise<void> {
   });
 
   replRl = rl;
-  let lastResponse = '';
 
   rl.prompt();
 
   rl.on('line', async (line) => {
     const input = line.trim();
     if (!input) {
-      rl.prompt();
-      return;
-    }
-
-    // Copy last response to clipboard
-    if (input.toLowerCase() === 'c' && lastResponse) {
-      try {
-        const { execFileSync } = await import('node:child_process');
-        execFileSync('pbcopy', [], { input: lastResponse });
-        console.log(chalk.green('  Copied to clipboard.'));
-      } catch {
-        console.log(chalk.yellow('  Could not copy to clipboard.'));
-      }
       rl.prompt();
       return;
     }
@@ -353,7 +341,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
       if (result) {
         process.stdout.write(renderMarkdown(result));
         lastResponse = result;
-        console.log(chalk.dim('  [c] copy to clipboard'));
+        console.log(chalk.dim('  /copy to clipboard'));
       }
       console.log();
     } catch (err) {
