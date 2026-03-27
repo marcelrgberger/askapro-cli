@@ -397,10 +397,15 @@ export async function startRepl(args: CliArgs): Promise<void> {
       process.exit(0);
     }
 
+    // Check for slash commands — but not if input is a file path (drag & drop)
     if (input.startsWith('/')) {
-      await handleCommand(input, commandCtx);
-      rl.prompt();
-      return;
+      const cleaned = input.replace(/^['"]|['"]$/g, '').replace(/\\ /g, ' ');
+      const isFilePath = existsSync(cleaned);
+      if (!isFilePath) {
+        await handleCommand(input, commandCtx);
+        rl.prompt();
+        return;
+      }
     }
 
     // Detect dropped file paths (drag & drop into terminal)
