@@ -1,8 +1,8 @@
 class AskproCli < Formula
   desc "AI-powered document analysis with 85+ expert consultation roles"
   homepage "https://github.com/marcelrgberger/askpro-cli"
-  url "https://github.com/marcelrgberger/askpro-cli/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "PLACEHOLDER"
+  url "https://github.com/marcelrgberger/askpro-cli/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "09430a0286b79827f2ba346b4b09cebe7e3e5bbd15130cc7910baff320ce462c"
   license "MIT"
 
   depends_on "node@22"
