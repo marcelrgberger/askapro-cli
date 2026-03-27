@@ -24,7 +24,7 @@ export const webFetchTool: ToolDefinition = {
     try {
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'askpro-cli/0.2.0',
+          'User-Agent': 'askpro-cli/0.3.0',
           'Accept': 'text/html,text/plain,application/json',
         },
         signal: AbortSignal.timeout(15000),

@@ -174,7 +174,20 @@ export async function startRepl(args: CliArgs): Promise<void> {
   const roleRegistry = new RoleRegistry();
   let activeRole: string | null = args.role || null;
 
-  conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined));
+  // Validate --role flag
+  if (activeRole && !roleRegistry.get(activeRole)) {
+    console.error(chalk.red(`  Unknown role: "${activeRole}"`));
+    console.error(chalk.dim(`  Use askpro --help or /roles to see available roles.`));
+    process.exit(1);
+  }
+
+  const getRoleContent = (roleId: string | null): string | undefined => {
+    if (!roleId) return undefined;
+    const role = roleRegistry.get(roleId);
+    return role?.content;
+  };
+
+  conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole)));
 
   // askQuestion will be bound to the REPL readline after it's created
   let replRl: readline.Interface | null = null;
@@ -194,7 +207,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
     },
     setRole: (r: string | null) => {
       activeRole = r;
-      conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined));
+      conversation.setSystemPrompt(buildSystemPrompt(activeRole || undefined, getRoleContent(activeRole)));
     },
   };
 

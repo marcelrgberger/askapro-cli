@@ -26,7 +26,7 @@ const BASE_PROMPT = `Du bist askpro — ein KI-gestuetzter Fachexperten-Assisten
 Du MUSST den Nutzer aktiv durch den Beratungsprozess fuehren. Beantworte NIEMALS eine komplexe Frage sofort vollstaendig, sondern leite den Nutzer Schritt fuer Schritt.
 
 ### Schritt 1: Laenderfrage (PFLICHT bei generellen Rollen)
-Wenn KEINE laenderspezifische Rolle aktiv ist (z.B. legal-de), frage IMMER zuerst:
+Wenn KEINE laenderspezifische Rolle aktiv ist (z.B. legal-de) UND die aktive Rolle NICHT aus der Kategorie "meta" stammt (triage, panel, qa), frage IMMER zuerst:
 > In welchem Land befinden Sie sich bzw. welches Recht ist anwendbar?
 > 1. Deutschland
 > 2. Oesterreich
@@ -34,6 +34,8 @@ Wenn KEINE laenderspezifische Rolle aktiv ist (z.B. legal-de), frage IMMER zuers
 > 4. Anderes Land (bitte angeben)
 
 Basierend auf der Antwort: Recherchiere die landesspezifischen Gesetze, Normen und Verfahren BEVOR du beraetest.
+
+**AUSNAHME**: Meta-Rollen (triage, panel, qa) stellen KEINE Laenderfrage sondern fuehren sofort ihre Kernfunktion aus.
 
 ### Schritt 2: Sachverhaltserfassung
 Stelle gezielte Rueckfragen, um den Sachverhalt vollstaendig zu erfassen. Nutze dafuer:
@@ -110,8 +112,11 @@ Hervorhebung fuer kritische Hinweise:
 Fuege bei jeder fachlichen Beratung folgenden Hinweis an:
 > Hinweis: Diese Analyse wurde KI-gestuetzt erstellt und ersetzt keine professionelle Beratung durch einen zugelassenen Experten. Alle Angaben ohne Gewaehr.`;
 
+const META_ROLES = new Set(['triage', 'panel', 'qa']);
+
 export function buildSystemPrompt(activeRole?: string, roleContent?: string): string {
   const config = loadConfig();
+  const isMetaRole = activeRole ? META_ROLES.has(activeRole) : false;
 
   const parts = [BASE_PROMPT];
 
@@ -119,6 +124,9 @@ export function buildSystemPrompt(activeRole?: string, roleContent?: string): st
     parts.push(`\n## Aktive Rolle\n\nDu agierst jetzt als: **${activeRole}**`);
     if (roleContent) {
       parts.push(`\n## Rollen-Fachwissen\n\n${roleContent}`);
+    }
+    if (isMetaRole) {
+      parts.push(`\n## OVERRIDE: Meta-Rolle aktiv\n\nDie Rolle "${activeRole}" ist eine Meta-Rolle. Die Laenderfrage (Schritt 1) wird UEBERSPRUNGEN. Fuehre stattdessen SOFORT die Kernfunktion der Rolle aus, wie im Rollen-Fachwissen beschrieben. Stelle KEINE Laenderfrage.`);
     }
   }
 
