@@ -18,6 +18,34 @@ function askQuestion(rl: readline.Interface, question: string): Promise<string> 
   });
 }
 
+async function runOnboarding(rl: readline.Interface): Promise<void> {
+  console.log();
+  console.log(chalk.bold.green('  Welcome to openai-cli!'));
+  console.log(chalk.dim('  AI-powered document analysis with 85+ expert consultation roles'));
+  console.log();
+  console.log(chalk.bold('  Let\'s set you up. You\'ll need an OpenAI API key.'));
+  console.log(chalk.dim('  Get one at: https://platform.openai.com/api-keys'));
+  console.log();
+
+  const apiKey = await askQuestion(rl, chalk.cyan('  Enter your OpenAI API key: '));
+
+  if (!apiKey) {
+    console.log(chalk.yellow('\n  No API key entered. You can set it later:'));
+    console.log(chalk.dim('    export OPENAI_API_KEY="sk-..."'));
+    console.log(chalk.dim('    or: openai-cli --api-key "sk-..."'));
+    console.log();
+    return;
+  }
+
+  if (!apiKey.startsWith('sk-')) {
+    console.log(chalk.yellow('\n  Warning: API key usually starts with "sk-". Saving anyway.'));
+  }
+
+  saveSettings({ apiKey });
+  console.log(chalk.green('  API key saved to ~/.openai-cli/settings.json'));
+  console.log();
+}
+
 async function selectModel(rl: readline.Interface): Promise<string> {
   console.log();
   console.log(chalk.bold('  Welcome! Fetching available models from OpenAI...'));
@@ -97,38 +125,47 @@ export async function startRepl(args: CliArgs): Promise<void> {
     saveSettings({ apiKey: args.apiKey });
   }
 
-  const settings = loadSettings();
+  let settings = loadSettings();
+
+  // Onboarding: First-time setup (interactive only)
+  const isFirstRun = !settings.apiKey && !process.env.OPENAI_API_KEY && !args.apiKey;
+  const needsModelSelection = !settings.model || settings.model === 'gpt-4o';
+
+  if (!args.print && (isFirstRun || needsModelSelection)) {
+    const setupRl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true,
+    });
+
+    if (isFirstRun) {
+      await runOnboarding(setupRl);
+      settings = loadSettings();
+    }
+
+    if (needsModelSelection && !args.model) {
+      await selectModel(setupRl);
+      settings = loadSettings();
+    }
+
+    setupRl.close();
+  }
+
   const toolRegistry = await createToolRegistry();
 
-  // Model selection priority: CLI arg > project OPENAI.md > saved setting > first-time selection
+  // Model selection priority: CLI arg > project OPENAI.md > saved setting > default
   let model: string;
 
-  if (args.model && args.model !== DEFAULT_MODEL) {
-    // Explicit CLI argument
+  if (args.model && args.model !== 'gpt-4o') {
     model = args.model;
   } else {
     const projectModel = getProjectModel();
     if (projectModel) {
-      // Project-specific model from OPENAI.md
       model = projectModel;
     } else if (settings.model && settings.model !== 'gpt-4o') {
-      // Previously saved model choice (not the old default)
       model = settings.model;
-    } else if (!settings.model || settings.model === 'gpt-4o') {
-      // First time or old default — ask user in interactive mode
-      if (!args.print) {
-        const rl = readline.createInterface({
-          input: process.stdin,
-          output: process.stdout,
-          terminal: true,
-        });
-        model = await selectModel(rl);
-        rl.close();
-      } else {
-        model = DEFAULT_MODEL;
-      }
     } else {
-      model = settings.model;
+      model = DEFAULT_MODEL;
     }
   }
 
