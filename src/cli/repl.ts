@@ -8,7 +8,7 @@ import { renderWelcome, renderPrompt, renderError, renderToolCall, renderInfo } 
 import type { CliArgs } from './args.js';
 import { loadSettings, saveSettings } from '../config/settings.js';
 import { ensureGlobalDirs } from '../config/paths.js';
-import { MODELS, DEFAULT_MODEL } from '../llm/models.js';
+import { DEFAULT_MODEL, fetchModels, getModel } from '../llm/models.js';
 import { loadConfig } from '../config/loader.js';
 import chalk from 'chalk';
 
@@ -20,38 +20,60 @@ function askQuestion(rl: readline.Interface, question: string): Promise<string> 
 
 async function selectModel(rl: readline.Interface): Promise<string> {
   console.log();
-  console.log(chalk.bold('  Welcome! Please select your preferred model:'));
+  console.log(chalk.bold('  Welcome! Fetching available models from OpenAI...'));
+
+  let modelList;
+  try {
+    modelList = await fetchModels();
+  } catch {
+    console.log(chalk.yellow('  Could not fetch models. Using default.'));
+    saveSettings({ model: DEFAULT_MODEL });
+    return DEFAULT_MODEL;
+  }
+
+  // Show top models grouped by tier for selection
+  const recommended = modelList.filter((m) => m.tier === 'flagship' || m.tier === 'fast' || m.tier === 'nano' || m.tier === 'reasoning').slice(0, 10);
+
   console.log();
+  const defaultIdx = recommended.findIndex((m) => m.id === DEFAULT_MODEL);
 
-  const modelList = Object.values(MODELS);
-  const defaultIdx = modelList.findIndex((m) => m.id === DEFAULT_MODEL);
-
-  for (let i = 0; i < modelList.length; i++) {
-    const m = modelList[i];
+  for (let i = 0; i < recommended.length; i++) {
+    const m = recommended[i];
     const isDefault = m.id === DEFAULT_MODEL;
     const prefix = isDefault ? chalk.green(`  ${i + 1}. `) : chalk.dim(`  ${i + 1}. `);
     const name = isDefault ? chalk.bold(m.name) : m.name;
-    const ctx = chalk.dim(` (${(m.contextWindow / 1000).toFixed(0)}K context)`);
+    const tier = chalk.dim(` [${m.tier}]`);
     const def = isDefault ? chalk.green(' [default]') : '';
-    console.log(`${prefix}${name}${ctx}${def}`);
+    console.log(`${prefix}${name}${tier}${def}`);
   }
 
   console.log();
-  const answer = await askQuestion(rl, chalk.cyan(`  Your choice [${defaultIdx + 1}]: `));
+  console.log(chalk.dim(`  (${modelList.length} models total — type a model ID for any other)`));
+  const answer = await askQuestion(rl, chalk.cyan(`  Your choice [${(defaultIdx >= 0 ? defaultIdx : 0) + 1}]: `));
 
+  // Check if numeric selection
   const idx = parseInt(answer, 10) - 1;
-  if (idx >= 0 && idx < modelList.length) {
-    const selected = modelList[idx].id;
+  if (idx >= 0 && idx < recommended.length) {
+    const selected = recommended[idx].id;
     saveSettings({ model: selected });
-    console.log(chalk.green(`  Model set: ${modelList[idx].name}`));
+    console.log(chalk.green(`  Model set: ${recommended[idx].name}`));
     console.log(chalk.dim('  Change anytime with /model'));
     console.log();
     return selected;
   }
 
+  // Check if typed a model ID directly
+  if (answer && modelList.some((m) => m.id === answer)) {
+    saveSettings({ model: answer });
+    console.log(chalk.green(`  Model set: ${answer}`));
+    console.log();
+    return answer;
+  }
+
   // Default
   saveSettings({ model: DEFAULT_MODEL });
-  console.log(chalk.green(`  Using default: ${MODELS[DEFAULT_MODEL].name}`));
+  const defaultInfo = getModel(DEFAULT_MODEL);
+  console.log(chalk.green(`  Using default: ${defaultInfo.name}`));
   console.log();
   return DEFAULT_MODEL;
 }
@@ -62,7 +84,7 @@ function getProjectModel(): string | null {
 
   // Parse model from project OPENAI.md
   const match = config.projectInstructions.match(/^-\s*(?:model|modell|default):\s*(\S+)/im);
-  if (match && MODELS[match[1]]) {
+  if (match && match[1]) {
     return match[1];
   }
   return null;
@@ -144,7 +166,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
 
   // Interactive REPL
   renderWelcome();
-  renderInfo(`Model: ${MODELS[model]?.name || model}`);
+  renderInfo(`Model: ${getModel(model).name}`);
   if (activeRole) renderInfo(`Role: ${activeRole}`);
   console.log();
 
@@ -165,7 +187,7 @@ export async function startRepl(args: CliArgs): Promise<void> {
     }
 
     if (input.startsWith('/')) {
-      handleCommand(input, commandCtx);
+      await handleCommand(input, commandCtx);
       rl.prompt();
       return;
     }

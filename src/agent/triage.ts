@@ -2,6 +2,7 @@ import { RoleRegistry } from '../roles/registry.js';
 import type { RoleDefinition } from '../roles/loader.js';
 import { collectStream } from '../llm/client.js';
 import { loadSettings } from '../config/settings.js';
+import { getTriageModel } from '../llm/models.js';
 
 export interface TriageResult {
   primaryRole: RoleDefinition | null;
@@ -53,7 +54,7 @@ export async function triageQuery(
     const roleList = roles.map((r) => `- ${r.id}: ${r.name} (${r.category})`).join('\n');
 
     const result = await collectStream({
-      model: settings.triageModel,
+      model: getTriageModel(),
       messages: [
         {
           role: 'system',
